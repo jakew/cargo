@@ -100,3 +100,6 @@ You can setup a basic scaffolding using:
 ```shell
 cargo init
 ```
+
+### Example Repo
+You can see an example [here](https://github.com/jakew/cargo/tree/main/example).

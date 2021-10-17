@@ -1,0 +1,28 @@
+cargoVersion: v0
+configFiles:
+  - config.yaml
+  
+manifests:
+- name: hello-world
+  dockerfile: hello/template.Dockerfile
+  configFiles:
+  - hello/config-world.yaml
+  outputFile: dist/hello/world.Dockerfile
+
+- name: hello-you
+  dockerfile: hello/template.Dockerfile
+  configFiles:
+  - hello/config-you.yaml
+  outputFile: dist/hello/you.Dockerfile
+
+- name: goodbye-world
+  dockerfile: goodbye/template.Dockerfile
+  configFiles:
+  - goodbye/config-world.yaml
+  outputFile: dist/goodbye/world.Dockerfile
+
+- name: goodbye-you
+  dockerfile: goodbye/template.Dockerfile
+  configFiles:
+  - goodbye/config-you.yaml
+  outputFile: dist/goodbye/you.Dockerfile
