@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// WriteScaffolding creates the scaffolding for the end user to modify.
 func WriteScaffolding(rootPath, cargofile, tmplfile, configfile, outputfile string) error {
 	if !isDir(rootPath) {
 		if err := os.MkdirAll(rootPath, os.ModePerm); err != nil {
