@@ -1,4 +1,4 @@
-package build
+package renderer
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
@@ -38,12 +39,30 @@ func PrintDockerfile(w io.Writer, tmplfile string, cfgfile []string) error {
 	return nil
 }
 
-// BuildCargo reads and parses path and then builds and writes each manifest.
-func BuildCargo(path string) error {
+func contains(strs []string, str string) bool {
+	for _, v := range strs {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
+func toLower(strs []string) []string {
+	lc := make([]string, len(strs))
+	copy(lc, strs)
+	for k, v := range lc {
+		lc[k] = strings.ToLower(v)
+	}
+	return lc
+}
+
+// RenderCargo reads and parses path and then builds and writes each manifest.
+func RenderCargo(path string, manifestNames []string) error {
 	dir := filepath.Dir(path)
+	manifestNames = toLower(manifestNames)
 
 	cargo := &apiv1.Cargo{}
-
 	if err := loadYamlFromFile(path, cargo); err != nil {
 		return fmt.Errorf("failed to open manifest: %w", err)
 	}
@@ -63,7 +82,12 @@ func BuildCargo(path string) error {
 	}
 
 	for i, manifest := range cargo.Manifests {
-		if err := BuildManifest(manifest, cfg, dir); err != nil {
+		if len(manifestNames) != 0 {
+			if !contains(manifestNames, manifest.Name) {
+				continue
+			}
+		}
+		if err := RenderManifest(manifest, cfg, dir); err != nil {
 			return fmt.Errorf("unable to build manifest %d: %w", i, err)
 		}
 	}
@@ -71,9 +95,9 @@ func BuildCargo(path string) error {
 	return nil
 }
 
-// BuildManifest appends cfg and config values and files provided and then
+// RenderManifest appends cfg and config values and files provided and then
 // writes the template.
-func BuildManifest(man apiv1.Manifest, cfg apiv1.Config, dir string) error {
+func RenderManifest(man apiv1.Manifest, cfg apiv1.Config, dir string) error {
 	if !validManifest(man) {
 		return errors.New("must have Dockerfile template and output")
 	}
@@ -99,6 +123,12 @@ func BuildManifest(man apiv1.Manifest, cfg apiv1.Config, dir string) error {
 	}
 
 	outputpath := filepath.Join(dir, man.OutputFile)
+	outdir := filepath.Dir(outputpath)
+	if !isDir(outdir) {
+		if err := os.MkdirAll(outdir, os.ModePerm); err != nil {
+			return err
+		}
+	}
 	w, err := os.Create(outputpath)
 	if err != nil {
 		return fmt.Errorf("failed to open Dockerfile for writing: %w", err)

@@ -25,20 +25,21 @@ import (
 	"io"
 	"os"
 
-	"github.com/jakew/cargo/internal/build"
 	"github.com/spf13/cobra"
+
+	"github.com/jakew/cargo/internal/renderer"
 )
 
 var configFiles = []string{}
 var output = ""
 
-// buildCmd represents the build command
-var buildCmd = &cobra.Command{
-	Use:   "build [TEMPLATE]",
-	Short: "Build a specific Dockerfile template",
-	Long: `Build a specific Dockerfile template. Multiple config files
+// renderCmd represents the render command
+var renderCmd = &cobra.Command{
+	Use:   "render [TEMPLATE]",
+	Short: "Render a specific Dockerfile template",
+	Long: `Render a specific Dockerfile template. Multiple config files
 can be set using multiple -c flags.`,
-	Example: `build Dockerfile.template -c config.yaml`,
+	Example: `render Dockerfile.template -c config.yaml`,
 	Args:    cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		file := "template.Dockerfile"
@@ -58,15 +59,15 @@ can be set using multiple -c flags.`,
 			w = cmd.OutOrStdout()
 		}
 
-		return build.PrintDockerfile(w, file, configFiles)
+		return renderer.PrintDockerfile(w, file, configFiles)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(buildCmd)
+	rootCmd.AddCommand(renderCmd)
 
-	buildCmd.Flags().StringSliceVarP(&configFiles, "config", "c", []string{}, "Values that should be provided to the template.")
-	buildCmd.MarkFlagFilename("config", "yaml", "yml")
+	renderCmd.Flags().StringSliceVarP(&configFiles, "config", "c", []string{}, "Values that should be provided to the template.")
+	renderCmd.MarkFlagFilename("config", "yaml", "yml")
 
-	buildCmd.Flags().StringVarP(&output, "output", "o", "", "File to write the output to.")
+	renderCmd.Flags().StringVarP(&output, "output", "o", "", "File to write the output to.")
 }

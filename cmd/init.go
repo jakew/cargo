@@ -26,7 +26,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/jakew/cargo/internal/build"
+	"github.com/jakew/cargo/internal/renderer"
 )
 
 // initCmd represents the init command
@@ -43,7 +43,7 @@ path is provided, the path of . is used.`,
 		}
 
 		log.Printf("initializing scaffolding in %s", rootPath)
-		return build.WriteScaffolding(rootPath, DefaultCargo, DefaultTemplate, DefaultConfig, DefaultOutput)
+		return renderer.WriteScaffolding(rootPath, DefaultCargo, DefaultTemplate, DefaultConfig, DefaultOutput)
 	},
 }
 

@@ -1,9 +1,9 @@
 package v1
 
-// Cargo describes the set of container images to build.
+// Cargo describes the set of container images to render.
 type Cargo struct {
 
-	// CargoVersion is the version of Cargo to use to build this.
+	// CargoVersion is the version of Cargo to use.
 	CargoVersion string `yaml:"cargoVersion"`
 
 	// Manifests describe each container image.
@@ -19,6 +19,9 @@ type Cargo struct {
 
 // Manifest describes a single container image.
 type Manifest struct {
+
+	// Name to refer to this manifest as. If blank, you can't render it by name.
+	Name string `yaml:"name"`
 
 	// Dockerfile template render.
 	Dockerfile string `yaml:"dockerfile"`
